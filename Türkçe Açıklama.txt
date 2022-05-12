@@ -1,0 +1,42 @@
+Bu projenin temel amacý, Derin Öðrenme ve Makine Öðrenimi Algoritmalarý kullanarak aþýrý hýzlý araçlarý belirlemektir. Videodan bir dizi görüntü alýndýktan sonra, Haar Cascade Sýnýflandýrýcý kullanýlarak kamyonlar tespit edilir. Sýnýflandýrýcý modeli, bir XML dosyasý oluþturmak için birçok pozitif ve negatif görüntü kullanýlarak eðitilir. Bunu, araçlarýn takibi ve konumlarý, ppm (piksel/metre) ve fps (saniyedeki kare) yardýmýyla hýzlarýnýn tahmin edilmesi takip eder. Artýk tespit edilen kamyonlarýn kýrpýlmýþ görüntüleri Plaka tespiti için gönderiliyor. CCA (Baðlý Bileþen Analizi), Plaka tespiti ve Karakter Segmentasyonuna yardýmcý olur. SVC modeli karakter görüntüleri (20X20) kullanýlarak eðitilir ve doðruluðu artýrmak için 4 çapraz kat doðrulamasý (Machine Learning) de yapýlýr. Bu model, bölümlere ayrýlmýþ karakterleri tanýmaya yardýmcý olur. Tanýma iþleminden sonra, kamyonlarýn hesaplanan hýzlarý, plaka numaralarýyla birlikte bir excel sayfasýna aktarýlýr. Bu kamyonlara ayrýca sistematik bir veritabaný oluþturmak için bazý kimlikler atanýr.
+
+Speed_Detection_&_License_Plate_Detection.py'yi çalýþtýrmak için aþaðýdaki adýmlarý izleyin:
+
+    IDLE python'u bu siteden indirin: ' https://www.python.org/downloads/ '
+    OpenCV ve dlib kitaplýklarýný þuradan yükleyin: ' https://www.learnopencv.com/install-dlib-on-windows/ '
+    Þu diðer kitaplýklarý da kurun: skimage, sklearn, openpyxl, threading, time, joblib, numpy, matplotlib, datetime, & os.
+    Komut Ýstemi aracýlýðýyla bu kodu çalýþtýrýn. (Dizinleri deðiþtirdiðinizden emin olun)
+
+Metodoloji:
+
+    Görüntü Alýmý: Bir videodan birer birer görüntü dizilerini çýkarma, ardýndan bunlarý cv2 (Açýk Kaynak Bilgisayarla Görme) kitaplýðýný kullanarak okuma.
+
+    Kamyon Algýlama: Haar Cascade CLassifier'ý Kullanma Bu Algoritma 4 aþama içerir: a. Haar Özellik Seçimi B. Ýntegral Görüntüler Oluþturma C. Adaboost (Uyarlanabilir güçlendirme) Eðitimi D. Basamaklý Sýnýflandýrýcýlar Kullanýlan Ýþlevler: CascadeClassifier veDetectMultiScale
+
+    Bir makineyi XML dosyasý yapmak için eðitmek(): I YOL: Komut Ýstemi Yöntemi a. Görüntü Veritabanýnýn Toplanmasý B. Büyütme: görüntü veritabanýný artýrmak için C. Objectmarker veya Image Clipper kullanarak pozitif görüntüleri kýrpýn ve iþaretleyin D. Haar Eðitimi Referans: ' www.cs.auckland.ac.nz/~m.rezaei/Downloads.html ' II YOL: Cascade Trainer (Grafik Kullanýcý Arayüzü) GUI yazýlýmýný kurun ve parametrelerin deðerlerini belirleyin. Referans: ' http://amin-ahmadi.com/cascade-trainer-gui/ '
+
+    Tespit edilen kamyonlarýn dlib kütüphanesi kullanýlarak takibi: Kullanýlan Fonksiyonlar: a. dlib.correlation_tracker() B. dlib.correlation_tracker().start_track() C. dlib.dikdörtgen
+
+    Hýz Tahmini: Hýz (km/sa olarak) = Tespit edilen kamyonlarýn Katettiði Mesafe (metre olarak) * fps * 3,6
+
+    CCA (Baðlý Bileþen Analizi): Plakayý tespit etmek ve Karakterleri segmentlere ayýrmak için Kullanýlan Ýþlevler: skimage.measure.label ve skimage.measure.regionprops
+
+    Bu kodda kullanýlan varsayýmlar: (buna göre deðiþtirin) plakanýn yüksekliði = kýrpýlan kamyon resminin yüksekliðinin %6 - %18'i plaka geniþliði = kýrpýlan kamyon resminin geniþliðinin %8,5 - %20'si bölümlere ayrýlacak karakterlerin yüksekliði = %18,75 - plaka yüksekliðinin %37,5'i bölümlere ayrýlacak karakterlerin geniþliði = plaka geniþliðinin %5 - %40'ý
+
+    Vektör Sýnýflandýrýcýyý ve Çapraz Doðrulamayý Destekleyin (4 kat): Karakterleri tahmin etmek için
+
+    Excel Sayfasý ile Çalýþma: 'openpyxl' kütüphanesi kullanýlarak kamyonlarýn hesaplanan hýzlarý plaka numaralarý ile birlikte excel tablosuna aktarýlabilir. Bu kamyonlara, sistemli bir veritabaný oluþturmak için bazý kimlikler atanýr.
+
+    Aþýrý Hýz Araç Numaralandýrma
+
+sýnýrlamalar:
+
+    Bazen, nesnenin ölçeði deðiþmeye devam ettiðinde dlib korelasyon izleyicisi baþarýsýz olur.
+    Pahalý tarama ve iþlem süresi nedeniyle tahmini hýz o kadar gerçekçi deðil.
+    Hatalý olmayan plaka karakterlerini tahmin etmek için iyi çözünürlüklü bir kamera kullanýlmalýdýr. Sinir Geliþtirme – Bunun yerine görüntülerin Süper Çözünürlüðü (Derin Öðrenme) de kullanýlabilir. Ancak iþlem süresini uzatýr.
+    Araç plakalarý bazen tozla kaplýdýr veya ön tarafta bir çubukla örtülür veya orada bile deðildir, bu nedenle tespit edilmesine izin vermez.
+    Eski kamyonlar tanýmlanamaz çünkü makine yalnýzca yeni kamyon modelleri kullanýlarak eðitilmiþtir.
+
+esinlenilmiþtir. https://github.com/apoorva-dave/LicensePlateDetector/blob/master/DetectPlate.py'den Referans: https://github.com/kraten/vehicle-speed-check https://github.com/kraten/vehicle-speed-check/blob/master/myhaar.xml
+
+#Not: Bu Makine Öðrenimi sorununu çözmek için kullanýlan teknik (görüntü iþleme) artýk eskidir. kullanýrsanýz daha iyi sonuçlar elde edebilirsiniz https://pjreddie.com/yolo/ ) nesne dedektörünü ve karakter segmentasyonu için VGG16 modelinin karakter tanýma ve ince ayarýný 
